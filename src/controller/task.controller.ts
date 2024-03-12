@@ -1,22 +1,25 @@
 import {
-  Controller,
-  Post,
   Body,
-  Param,
-  Res,
-  HttpStatus,
-  Put,
-  Get,
+  Controller,
   Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
-import { TaskService } from '../service/task.service';
-import { CreateTaskDto } from '../dto/create-task.dto';
-import { ITask } from 'src/interface/task.interface';
+
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
+import { AuthGuard } from 'src/guard/auth/auth.guard';
+import { ITask } from 'src/interface/task.interface';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { TaskService } from '../service/task.service';
 
 @Controller('task')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
   @Post()
   async create(@Res() response, @Body() createTaskDto: CreateTaskDto) {
@@ -48,10 +51,13 @@ export class TaskController {
         existingTask,
       });
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(err.status).json({
+        message: err.message,
+      });
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async findAll(@Res() response): Promise<ITask[]> {
     try {
@@ -61,7 +67,9 @@ export class TaskController {
         taskData,
       });
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(err.status).json({
+        message: err.message,
+      });
     }
   }
 
@@ -74,7 +82,9 @@ export class TaskController {
         data: taskData,
       });
     } catch (err) {
-      return response.status(err.status).json(err.message);
+      return response.status(err.status).json({
+        message: err.message,
+      });
     }
   }
 
@@ -87,7 +97,9 @@ export class TaskController {
         removedStudent,
       });
     } catch (err) {
-      return response.status(err.status).json(err.response);
+      return response.status(err.status).json({
+        message: err.message,
+      });
     }
   }
 }

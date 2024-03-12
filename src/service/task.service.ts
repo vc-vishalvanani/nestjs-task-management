@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTaskDto } from '../dto/create-task.dto';
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ITask } from 'src/interface/task.interface';
+import { Model } from 'mongoose';
+
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
+import { ITask } from 'src/interface/task.interface';
+import { CreateTaskDto } from '../dto/create-task.dto';
 
 @Injectable()
 export class TaskService {
-  constructor(@InjectModel('Task') private taskModel: Model<ITask>) {}
+  constructor(@InjectModel('Task') private taskModel: Model<ITask>) { }
 
   async create(createTaskDto: CreateTaskDto): Promise<ITask> {
     const newTask = await new this.taskModel(createTaskDto);
@@ -24,6 +25,9 @@ export class TaskService {
 
   async findOne(id: string): Promise<ITask> {
     const task = await this.taskModel.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
     return task;
   }
 
@@ -46,4 +50,8 @@ export class TaskService {
     }
     return removedTask;
   }
+
+  // filterByStatus(value: string): Promise<ITask[]> {
+  //   const filteredTask = await this.taskModel.where()
+  // }
 }
