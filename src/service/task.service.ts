@@ -15,8 +15,8 @@ export class TaskService {
     return newTask.save();
   }
 
-  async findAll(): Promise<ITask[]> {
-    const taskList = await this.taskModel.find();
+  async findAll(param: any): Promise<ITask[]> {
+    const taskList = await this.taskModel.find(param);
     if (!taskList || taskList.length === 0) {
       throw new NotFoundException('Task list is empty.');
     }
@@ -50,8 +50,4 @@ export class TaskService {
     }
     return removedTask;
   }
-
-  // filterByStatus(value: string): Promise<ITask[]> {
-  //   const filteredTask = await this.taskModel.where()
-  // }
 }

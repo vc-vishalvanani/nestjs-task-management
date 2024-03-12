@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -38,6 +39,7 @@ export class TaskController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Put('/:id')
   async updateTask(
     @Res() response,
@@ -59,9 +61,9 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll(@Res() response): Promise<ITask[]> {
+  async findAll(@Res() response, @Query() queryParams: any): Promise<ITask[]> {
     try {
-      const taskData = await this.taskService.findAll();
+      const taskData = await this.taskService.findAll(queryParams);
       return response.status(HttpStatus.OK).json({
         message: 'All task data found successfully',
         taskData,
@@ -73,6 +75,7 @@ export class TaskController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(@Res() response, @Param('id') id: string): Promise<ITask> {
     try {
@@ -88,6 +91,7 @@ export class TaskController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Res() response, @Param('id') id: string): Promise<ITask> {
     try {
