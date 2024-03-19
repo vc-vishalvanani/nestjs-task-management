@@ -1,14 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNotEmpty } from 'class-validator';
-import { now } from 'mongoose';
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop()
   @IsNotEmpty()
   username: string;
 
-  @Prop()
+  @Prop({ select: false })
   @IsNotEmpty()
   password: string;
 
@@ -19,12 +18,6 @@ export class User {
   @Prop()
   @IsNotEmpty()
   status: string;
-
-  @Prop({ default: now() })
-  createdAt: Date;
-
-  @Prop({ default: now() })
-  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

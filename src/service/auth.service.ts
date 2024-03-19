@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
-import { LoginDto, UserDto } from 'src/dto/user.dto';
+import { LoginDto, UpdateUserDto, UserDto } from 'src/dto/user.dto';
 import { IUser } from 'src/interface/user.interface';
 
 @Injectable()
@@ -25,12 +25,16 @@ export class AuthService {
     return user.save();
   }
 
-  async findOne(id: string): Promise<IUser> {
-    const user = await this.userModel.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
+  async findById(id: string): Promise<IUser> {
+    try {
+      const user = await this.userModel.findById(id);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      return user;
+    } catch (err) {
+      throw new NotFoundException(err);
     }
-    return user;
   }
 
   async findAll(): Promise<IUser[]> {
@@ -42,37 +46,61 @@ export class AuthService {
   }
 
   async findByUserName(userName: string) {
-    const user = await this.userModel.find({ username: userName }).exec();
-    if (user.length) {
+    const user = await this.userModel.findOne({ username: userName }).exec();
+    if (!user) {
       throw new NotFoundException('Username already in use.');
     }
   }
 
   async login(loginUserDto: LoginDto) {
     // Check username
-    const user = await this.userModel
-      .find({
-        username: loginUserDto.username,
-      })
-      .exec();
-    if (!user.length) {
+    const queryRes = this.userModel.findOne({
+      username: loginUserDto.username,
+    });
+    const user = await queryRes.select('+password').exec();
+    if (!user) {
       throw new UnauthorizedException('Invalid credential.');
     }
 
     // check password validation
-    const validPassword = await compare(
+    const validPassword = await this.comparePassword(
       loginUserDto.password,
-      user[0].password
+      user.password
     );
     if (!validPassword) {
       throw new UnauthorizedException('Unauthorized credential.');
     }
     const payload = {
-      id: user[0]._id,
-      name: user[0].name,
-      username: user[0].userName,
+      id: user._id,
+      name: user.name,
+      username: user.userName,
     };
     const token = await this.jwtService.signAsync(payload);
     return token;
+  }
+
+  async update(id: string, updateObject: UpdateUserDto) {
+    const updateRes = await this.userModel.findByIdAndUpdate(id, updateObject);
+
+    if (!updateRes) {
+      throw new NotFoundException('User not found');
+    }
+    return updateRes;
+  }
+
+  async getUser(userId: string, isIncludePassword = false) {
+    const queryRes = this.userModel.findById(userId);
+    return isIncludePassword
+      ? await queryRes.select('+password').exec()
+      : await queryRes.exec();
+  }
+
+  // check password validation
+  async comparePassword(password: string, dbPassword: string) {
+    return await compare(password, dbPassword);
+  }
+
+  async createPasswordHash(password: string) {
+    return await hash(password, 10);
   }
 }

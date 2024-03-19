@@ -8,7 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './controller/auth.controller';
 import { TaskController } from './controller/task.controller';
-import { RemovePasswordInterceptor } from './interceptor/remove-password.interceptor';
+import { ResponseInterceptor } from './interceptor/response.interceptor';
 import { TaskSchema } from './schema/task.schema';
 import { UserSchema } from './schema/user.schema';
 import { AuthService } from './service/auth.service';
@@ -29,13 +29,13 @@ import { TaskService } from './service/task.service';
   ],
   controllers: [AppController, TaskController, AuthController],
   providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: RemovePasswordInterceptor,
-    },
     AppService,
     TaskService,
     AuthService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
   ],
 })
 export class AppModule { }

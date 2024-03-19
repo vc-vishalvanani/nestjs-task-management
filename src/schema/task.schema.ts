@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsNotEmpty } from 'class-validator';
-import { now } from 'mongoose';
 
-@Schema()
+@Schema({ timestamps: true })
 export class Task {
   @Prop()
   @IsNotEmpty()
@@ -15,12 +14,6 @@ export class Task {
   @Prop()
   @IsNotEmpty()
   status: string; // "OPEN", "IN_PROGRESS", "DONE"
-
-  @Prop({ default: now() })
-  createdAt: Date;
-
-  @Prop({ default: now() })
-  updatedAt: Date;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

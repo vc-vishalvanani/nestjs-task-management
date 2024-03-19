@@ -22,6 +22,38 @@ import { TaskService } from '../service/task.service';
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
 
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  async findOne(@Res() response, @Param('id') id: string): Promise<ITask> {
+    try {
+      const taskData = await this.taskService.findOne(id);
+      return response.status(HttpStatus.OK).json({
+        message: 'Task found successfully',
+        data: taskData,
+      });
+    } catch (err) {
+      return response.status(err.status).json({
+        message: err.message,
+      });
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  async findAll(@Res() response, @Query() queryParams: any): Promise<ITask[]> {
+    try {
+      const taskData = await this.taskService.findAll(queryParams);
+      return response.status(HttpStatus.OK).json({
+        message: 'All task data found successfully',
+        taskData,
+      });
+    } catch (err) {
+      return response.status(err.status).json({
+        message: err.message,
+      });
+    }
+  }
+
   @Post()
   async create(@Res() response, @Body() createTaskDto: CreateTaskDto) {
     try {
@@ -51,38 +83,6 @@ export class TaskController {
       return response.status(HttpStatus.OK).json({
         message: 'Task has been successfully updated',
         existingTask,
-      });
-    } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
-    }
-  }
-
-  @UseGuards(AuthGuard)
-  @Get()
-  async findAll(@Res() response, @Query() queryParams: any): Promise<ITask[]> {
-    try {
-      const taskData = await this.taskService.findAll(queryParams);
-      return response.status(HttpStatus.OK).json({
-        message: 'All task data found successfully',
-        taskData,
-      });
-    } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
-    }
-  }
-
-  @UseGuards(AuthGuard)
-  @Get(':id')
-  async findOne(@Res() response, @Param('id') id: string): Promise<ITask> {
-    try {
-      const taskData = await this.taskService.findOne(id);
-      return response.status(HttpStatus.OK).json({
-        message: 'Task found successfully',
-        data: taskData,
       });
     } catch (err) {
       return response.status(err.status).json({
