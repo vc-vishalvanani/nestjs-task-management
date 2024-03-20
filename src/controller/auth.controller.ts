@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Req,
+  SetMetadata,
   UseGuards,
 } from '@nestjs/common';
 
@@ -15,17 +16,21 @@ import { LoginDto, ResetPasswordDto, UserDto } from 'src/dto/user.dto';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
 import { AuthService } from 'src/service/auth.service';
 
+export const ResponseMessage = (message: string) =>
+  SetMetadata('message', message);
+export const ResponseStatusCode = (statusCode: number) =>
+  SetMetadata('responseStatusCode', statusCode);
+
 @Controller('user')
 export class AuthController {
   constructor(private authService: AuthService) { }
 
   @UseGuards(AuthGuard)
+  @ResponseMessage('User found successfully')
   @Get(':id')
-  async userById(@Req() request, @Param('id') id: string) {
+  async userById(@Param('id') id: string) {
     try {
       const userData = await this.authService.findById(id);
-      // Set response message for this specific request
-      request.responseMessage = 'User found successfully';
       return userData;
     } catch (err) {
       throw new HttpException(err.message, err.status);
@@ -33,40 +38,39 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
+  @ResponseMessage('All user data found successfully')
   @Get()
-  async findAll(@Req() request) {
+  async findAll() {
     try {
       const userData = await this.authService.findAll();
-      // Set response message for this specific request
-      request.responseMessage = 'All user data found successfully';
       return userData;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
 
+  @ResponseMessage('User created successfully')
   @Post('signup')
-  async signup(@Req() request, @Body() registerUserDTO: UserDto) {
+  async signup(@Body() registerUserDTO: UserDto) {
     try {
       await this.authService.findByUserName(registerUserDTO.username);
       registerUserDTO.password = await this.authService.createPasswordHash(
         registerUserDTO.password
       );
       const newUser = await this.authService.create(registerUserDTO);
-      // Set response message for this specific request
-      request.responseMessage = 'User created successfully';
-      return newUser;
+      const userData = newUser.toJSON();
+      delete userData.password;
+      return userData;
     } catch (err) {
       throw new HttpException(err.message, err.status);
     }
   }
 
+  @ResponseMessage('Logged in successfully')
   @Post('login')
-  async login(@Req() request, @Body() loginUserDto: LoginDto) {
+  async login(@Body() loginUserDto: LoginDto) {
     try {
       const token = await this.authService.login(loginUserDto);
-      // Set response message for this specific request
-      request.responseMessage = 'Logged in successfully';
       return {
         token,
       };

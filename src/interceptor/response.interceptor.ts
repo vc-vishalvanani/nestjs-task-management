@@ -28,11 +28,13 @@ export class ResponseInterceptor<T>
   commonResponse(res: any, context: ExecutionContext) {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse();
-    const request = ctx.getRequest();
     const statusCode = response.statusCode;
 
+    // Extract response message from metadata
+    const message = Reflect.getMetadata('message', context.getHandler());
+
     return {
-      message: request.responseMessage,
+      message,
       status: statusCode,
       data: res,
     };

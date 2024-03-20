@@ -20,8 +20,8 @@ export class AuthService {
     private jwtService: JwtService
   ) { }
 
-  async create(createUserDto: UserDto): Promise<IUser> {
-    const user = await new this.userModel(createUserDto);
+  async create(createUserDto: UserDto) {
+    const user = new this.userModel(createUserDto);
     return user.save();
   }
 
