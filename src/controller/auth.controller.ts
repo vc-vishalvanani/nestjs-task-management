@@ -2,18 +2,17 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   HttpStatus,
   Param,
   Post,
   Put,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 
 import { LoginDto, ResetPasswordDto, UserDto } from 'src/dto/user.dto';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
-import { IUser } from 'src/interface/user.interface';
 import { AuthService } from 'src/service/auth.service';
 
 @Controller('user')
@@ -22,92 +21,81 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async userById(@Res() response, @Param('id') id: string): Promise<IUser> {
+  async userById(@Req() request, @Param('id') id: string) {
     try {
       const userData = await this.authService.findById(id);
-      return response.status(HttpStatus.OK).json({
-        message: 'User found successfully',
-        data: userData,
-      });
+      // Set response message for this specific request
+      request.responseMessage = 'User found successfully';
+      return userData;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll(@Res() response): Promise<IUser[]> {
+  async findAll(@Req() request) {
     try {
       const userData = await this.authService.findAll();
-      return response.status(HttpStatus.OK).json({
-        message: 'All user data found successfully',
-        userData,
-      });
+      // Set response message for this specific request
+      request.responseMessage = 'All user data found successfully';
+      return userData;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
   @Post('signup')
-  async signup(@Res() response, @Body() registerUserDTO: UserDto) {
+  async signup(@Req() request, @Body() registerUserDTO: UserDto) {
     try {
       await this.authService.findByUserName(registerUserDTO.username);
       registerUserDTO.password = await this.authService.createPasswordHash(
         registerUserDTO.password
       );
       const newUser = await this.authService.create(registerUserDTO);
-      return response.status(HttpStatus.OK).json({
-        message: 'User created successfully',
-        data: newUser,
-      });
+      // Set response message for this specific request
+      request.responseMessage = 'User created successfully';
+      return newUser;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
   @Post('login')
-  async login(@Res() response, @Body() loginUserDto: LoginDto) {
+  async login(@Req() request, @Body() loginUserDto: LoginDto) {
     try {
       const token = await this.authService.login(loginUserDto);
-      return response.status(HttpStatus.OK).json({
-        message: 'Logged in successfully',
-        access_token: token,
-      });
+      // Set response message for this specific request
+      request.responseMessage = 'Logged in successfully';
+      return {
+        token,
+      };
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
   @UseGuards(AuthGuard)
   @Put('resetPassword')
   async resetPassword(
-    @Res() response,
     @Req() request,
     @Body() resetPasswordDto: ResetPasswordDto
   ) {
     try {
       if (!request.user) {
-        return response.status(404).json({
-          message: 'Invalid Request',
-        });
+        request.responseMessage = 'Unauthorized request';
+        request.statusCode = HttpStatus.UNAUTHORIZED;
+        return;
       }
       const user = await this.authService.getUser(request.user.id, true);
       const isValidPassword = await this.authService.comparePassword(
-        user.password,
-        resetPasswordDto.oldPassword
+        resetPasswordDto.oldPassword,
+        user.password
       );
       if (!isValidPassword) {
-        return response.status(HttpStatus.CONFLICT).json({
-          message: 'Invalid old password',
-        });
+        request.responseMessage = 'Invalid old password';
+        request.statusCode = HttpStatus.CONFLICT;
+        return;
       }
       const newPasswordHash = await this.authService.createPasswordHash(
         resetPasswordDto.newPassword
@@ -115,13 +103,11 @@ export class AuthController {
       await this.authService.update(user.id, {
         password: newPasswordHash,
       });
-      return response.status(HttpStatus.OK).json({
-        message: 'Password changed successfully.',
-      });
+      request.responseMessage = 'Password changed successfully';
+      request.statusCode = HttpStatus.OK;
+      return;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 }

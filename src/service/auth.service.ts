@@ -33,7 +33,9 @@ export class AuthService {
       }
       return user;
     } catch (err) {
-      throw new NotFoundException(err);
+      throw new NotFoundException({
+        message: err.message,
+      });
     }
   }
 
@@ -45,9 +47,9 @@ export class AuthService {
     return userList;
   }
 
-  async findByUserName(userName: string) {
-    const user = await this.userModel.findOne({ username: userName }).exec();
-    if (!user) {
+  async findByUserName(username: string) {
+    const user = await this.userModel.findOne({ username }).exec();
+    if (user) {
       throw new NotFoundException('Username already in use.');
     }
   }

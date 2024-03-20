@@ -3,12 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
+  HttpException,
   Param,
   Post,
   Put,
   Query,
-  Res,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -24,86 +24,67 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Res() response, @Param('id') id: string): Promise<ITask> {
+  async findOne(@Req() request, @Param('id') id: string) {
     try {
       const taskData = await this.taskService.findOne(id);
-      return response.status(HttpStatus.OK).json({
-        message: 'Task found successfully',
-        data: taskData,
-      });
+      // Set response message for this specific request
+      request.responseMessage = 'Task found successfully';
+      return taskData;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll(@Res() response, @Query() queryParams: any): Promise<ITask[]> {
+  async findAll(@Req() request, @Query() queryParams: any) {
     try {
       const taskData = await this.taskService.findAll(queryParams);
-      return response.status(HttpStatus.OK).json({
-        message: 'All task data found successfully',
-        taskData,
-      });
+      // Set response message for this specific request
+      request.responseMessage = 'All task data found successfully';
+      return taskData;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post()
-  async create(@Res() response, @Body() createTaskDto: CreateTaskDto) {
+  async create(@Req() request, @Body() createTaskDto: CreateTaskDto) {
     try {
       const newTask = await this.taskService.create(createTaskDto);
-      return response.status(HttpStatus.CREATED).json({
-        message: 'Task has been created successfully',
-        newTask,
-      });
+      request.responseMessage = 'Task has been created successfully';
+      return newTask;
     } catch (err) {
-      return response.status(HttpStatus.BAD_REQUEST).json({
-        statusCode: 400,
-        message: 'Error: Task not created!',
-        error: 'Bad Request',
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
   @UseGuards(AuthGuard)
   @Put('/:id')
   async updateTask(
-    @Res() response,
+    @Req() request,
     @Param('id') taskId: string,
     @Body() updateTaskDto: UpdateTaskDto
   ) {
     try {
       const existingTask = await this.taskService.update(taskId, updateTaskDto);
-      return response.status(HttpStatus.OK).json({
-        message: 'Task has been successfully updated',
-        existingTask,
-      });
+      request.responseMessage = 'Task has been successfully updated';
+      return existingTask;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Res() response, @Param('id') id: string): Promise<ITask> {
+  async remove(@Req() request, @Param('id') id: string): Promise<ITask> {
     try {
-      const removedStudent = await this.taskService.remove(id);
-      return response.status(HttpStatus.OK).json({
-        message: 'Task deleted successfully',
-        removedStudent,
-      });
+      await this.taskService.remove(id);
+      request.responseMessage = 'Task deleted successfully';
+      return;
     } catch (err) {
-      return response.status(err.status).json({
-        message: err.message,
-      });
+      throw new HttpException(err.message, err.status);
     }
   }
 }
