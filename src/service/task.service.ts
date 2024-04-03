@@ -10,8 +10,8 @@ import { CreateTaskDto } from '../dto/create-task.dto';
 export class TaskService {
   constructor(@InjectModel('Task') private taskModel: Model<ITask>) { }
 
-  async create(createTaskDto: CreateTaskDto): Promise<ITask> {
-    const newTask = await new this.taskModel(createTaskDto);
+  async create(createTaskDto: CreateTaskDto) {
+    const newTask = new this.taskModel(createTaskDto);
     return newTask.save();
   }
 

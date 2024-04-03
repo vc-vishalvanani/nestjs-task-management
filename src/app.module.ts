@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { AuthController } from './controller/auth.controller';
 import { TaskController } from './controller/task.controller';
 import { ResponseInterceptor } from './interceptor/response.interceptor';
+import { TaskMockService } from './mock/task-mock.service';
 import { TaskSchema } from './schema/task.schema';
 import { UserSchema } from './schema/user.schema';
 import { AuthService } from './service/auth.service';
@@ -35,6 +36,10 @@ import { TaskService } from './service/task.service';
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
+    },
+    {
+      provide: TaskService,
+      useClass: TaskMockService,
     },
   ],
 })

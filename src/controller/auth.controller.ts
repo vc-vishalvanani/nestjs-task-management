@@ -18,8 +18,6 @@ import { AuthService } from 'src/service/auth.service';
 
 export const ResponseMessage = (message: string) =>
   SetMetadata('message', message);
-export const ResponseStatusCode = (statusCode: number) =>
-  SetMetadata('responseStatusCode', statusCode);
 
 @Controller('user')
 export class AuthController {
@@ -80,6 +78,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
+  @ResponseMessage('Password changed successfully')
   @Put('resetPassword')
   async resetPassword(
     @Req() request,
@@ -87,9 +86,10 @@ export class AuthController {
   ) {
     try {
       if (!request.user) {
-        request.responseMessage = 'Unauthorized request';
-        request.statusCode = HttpStatus.UNAUTHORIZED;
-        return;
+        throw new HttpException(
+          'Unauthorized request',
+          HttpStatus.UNAUTHORIZED
+        );
       }
       const user = await this.authService.getUser(request.user.id, true);
       const isValidPassword = await this.authService.comparePassword(
@@ -97,9 +97,7 @@ export class AuthController {
         user.password
       );
       if (!isValidPassword) {
-        request.responseMessage = 'Invalid old password';
-        request.statusCode = HttpStatus.CONFLICT;
-        return;
+        throw new HttpException('Invalid old password', HttpStatus.CONFLICT);
       }
       const newPasswordHash = await this.authService.createPasswordHash(
         resetPasswordDto.newPassword
@@ -107,8 +105,6 @@ export class AuthController {
       await this.authService.update(user.id, {
         password: newPasswordHash,
       });
-      request.responseMessage = 'Password changed successfully';
-      request.statusCode = HttpStatus.OK;
       return;
     } catch (err) {
       throw new HttpException(err.message, err.status);
