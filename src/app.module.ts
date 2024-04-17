@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './controller/auth.controller';
+import { DateController } from './controller/date.controller';
 import { TaskController } from './controller/task.controller';
 import { TaskSchema } from './schema/task.schema';
 import { UserSchema } from './schema/user.schema';
@@ -25,7 +26,7 @@ import { TaskService } from './service/task.service';
       secret: process.env.JWT_SECRET_KEY,
     }),
   ],
-  controllers: [AppController, TaskController, AuthController],
+  controllers: [AppController, TaskController, AuthController, DateController],
   providers: [
     AppService,
     TaskService,
