@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -24,7 +25,7 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Req() request, @Param('id') id: string) {
+  async findOne(@Req() request, @Param('id', ParseIntPipe) id: number) {
     try {
       const taskData = await this.taskService.findOne(id);
       // Set response message for this specific request

@@ -1,4 +1,4 @@
-import { Injectable, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Injectable, NotFoundException, Param } from '@nestjs/common';
 
 @Injectable()
 export class TaskMockService {
@@ -23,7 +23,14 @@ export class TaskMockService {
     return this.taskList;
   }
 
-  findOne(@Param('id', new ParseUUIDPipe()) uuid: string) {
-    return this.taskList.find((task) => task.uuid == uuid);
+  // findOne(@Param('id', new ParseUUIDPipe()) uuid: string) {
+  //   return this.taskList.find((task) => task.uuid == uuid);
+  // }
+  findOne(@Param('id') id: number) {
+    const task = this.taskList.find((task) => task.id === id);
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    return task;
   }
 }

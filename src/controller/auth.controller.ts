@@ -10,16 +10,19 @@ import {
   Req,
   SetMetadata,
   UseGuards,
+  UsePipes
 } from '@nestjs/common';
 
 import { LoginDto, ResetPasswordDto, UserDto } from 'src/dto/user.dto';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
+import { SignupValidationPipe } from 'src/pipes/signup-validation.pipe';
 import { AuthService } from 'src/service/auth.service';
 
 export const ResponseMessage = (message: string) =>
   SetMetadata('message', message);
 
 @Controller('user')
+// @UseInterceptors(ResponseInterceptor)
 export class AuthController {
   constructor(private authService: AuthService) { }
 
@@ -48,6 +51,7 @@ export class AuthController {
   }
 
   @ResponseMessage('User created successfully')
+  @UsePipes(new SignupValidationPipe())
   @Post('signup')
   async signup(@Body() registerUserDTO: UserDto) {
     try {

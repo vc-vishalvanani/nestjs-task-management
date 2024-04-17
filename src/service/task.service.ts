@@ -23,7 +23,7 @@ export class TaskService {
     return taskList;
   }
 
-  async findOne(id: string): Promise<ITask> {
+  async findOne(id: number): Promise<ITask> {
     const task = await this.taskModel.findById(id);
     if (!task) {
       throw new NotFoundException('Task not found');

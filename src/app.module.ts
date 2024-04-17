@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -8,7 +7,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './controller/auth.controller';
 import { TaskController } from './controller/task.controller';
-import { ResponseInterceptor } from './interceptor/response.interceptor';
 import { TaskMockService } from './mock/task-mock.service';
 import { TaskSchema } from './schema/task.schema';
 import { UserSchema } from './schema/user.schema';
@@ -33,10 +31,6 @@ import { TaskService } from './service/task.service';
     AppService,
     TaskService,
     AuthService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ResponseInterceptor,
-    },
     {
       provide: TaskService,
       useClass: TaskMockService,
