@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpException,
@@ -25,7 +26,7 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Req() request, @Param('id', ParseIntPipe) id: number) {
+  async findOne(@Req() request, @Param('id') id: string) {
     try {
       const taskData = await this.taskService.findOne(id);
       // Set response message for this specific request
@@ -38,9 +39,13 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll(@Req() request, @Query() queryParams: any) {
+  async findAll(
+    @Req() request,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(2), ParseIntPipe) limit: number
+  ) {
     try {
-      const taskData = await this.taskService.findAll(queryParams);
+      const taskData = await this.taskService.getTasks(page, limit);
       // Set response message for this specific request
       request.responseMessage = 'All task data found successfully';
       return taskData;

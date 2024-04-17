@@ -7,7 +7,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './controller/auth.controller';
 import { TaskController } from './controller/task.controller';
-import { TaskMockService } from './mock/task-mock.service';
 import { TaskSchema } from './schema/task.schema';
 import { UserSchema } from './schema/user.schema';
 import { AuthService } from './service/auth.service';
@@ -31,10 +30,10 @@ import { TaskService } from './service/task.service';
     AppService,
     TaskService,
     AuthService,
-    {
-      provide: TaskService,
-      useClass: TaskMockService,
-    },
+    // {
+    //   provide: TaskService,
+    //   useClass: TaskMockService,
+    // },
   ],
 })
 export class AppModule { }

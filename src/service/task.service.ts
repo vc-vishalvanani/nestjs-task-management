@@ -23,7 +23,13 @@ export class TaskService {
     return taskList;
   }
 
-  async findOne(id: number): Promise<ITask> {
+  async getTasks(page: number, limit: number): Promise<ITask[]> {
+    const skip = (page - 1) * limit;
+    const tasks = await this.taskModel.find({}, '', { skip, limit });
+    return tasks;
+  }
+
+  async findOne(id: string): Promise<ITask> {
     const task = await this.taskModel.findById(id);
     if (!task) {
       throw new NotFoundException('Task not found');
