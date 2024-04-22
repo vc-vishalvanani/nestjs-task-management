@@ -1,14 +1,11 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare, hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
 import { LoginDto, UpdateUserDto, UserDto } from 'src/dto/user.dto';
+import { AuthorizationException } from 'src/exception/AuthorizationException';
 import { IUser } from 'src/interface/user.interface';
 
 @Injectable()
@@ -61,7 +58,7 @@ export class AuthService {
     });
     const user = await queryRes.select('+password').exec();
     if (!user) {
-      throw new UnauthorizedException('Invalid credential.');
+      throw new AuthorizationException('Unauthorized access: Invalid cred');
     }
 
     // check password validation
@@ -70,7 +67,7 @@ export class AuthService {
       user.password
     );
     if (!validPassword) {
-      throw new UnauthorizedException('Unauthorized credential.');
+      throw new AuthorizationException('Unauthorized access: Invalid cred.');
     }
     const payload = {
       id: user._id,

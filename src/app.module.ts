@@ -35,6 +35,10 @@ import { TaskService } from './service/task.service';
     //   provide: TaskService,
     //   useClass: TaskMockService,
     // },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: HttpExceptionFilter,
+    // },
   ],
 })
 export class AppModule { }

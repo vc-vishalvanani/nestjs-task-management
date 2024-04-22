@@ -29,14 +29,13 @@ export class ResponseInterceptor<T>
     const ctx = context.switchToHttp();
     const response = ctx.getResponse();
     const statusCode = response.statusCode;
-
     // Extract response message from metadata
     const message = Reflect.getMetadata('message', context.getHandler());
 
     return {
+      data: res,
       message,
       status: statusCode,
-      data: res,
     };
   }
 
@@ -50,8 +49,8 @@ export class ResponseInterceptor<T>
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     response.status(status).json({
-      status,
       message: exception.message,
+      status,
     });
   }
 }

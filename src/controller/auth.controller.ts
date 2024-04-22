@@ -10,7 +10,7 @@ import {
   Req,
   SetMetadata,
   UseGuards,
-  UsePipes,
+  UsePipes
 } from '@nestjs/common';
 
 import { LoginDto, ResetPasswordDto, UserDto } from 'src/dto/user.dto';

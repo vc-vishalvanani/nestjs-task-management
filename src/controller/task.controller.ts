@@ -11,18 +11,24 @@ import {
   Put,
   Query,
   Req,
+  UseFilters,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
+import { HttpExceptionFilter } from 'src/exception/HttpExceptionFilter';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
+import { ResponseInterceptor } from 'src/interceptor/response.interceptor';
 import { ITask } from 'src/interface/task.interface';
 import { TaskValidationPipe } from 'src/pipes/task-validation.pipe';
 import { CreateTaskDto } from '../dto/create-task.dto';
 import { TaskService } from '../service/task.service';
+import { ResponseMessage } from './auth.controller';
 
 @Controller('task')
+@UseInterceptors(ResponseInterceptor)
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
 
@@ -58,11 +64,12 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @UsePipes(new TaskValidationPipe())
+  @UseFilters(HttpExceptionFilter)
+  @ResponseMessage('Task has been created successfully')
   @Post()
-  async create(@Req() request, @Body() createTaskDto: CreateTaskDto) {
+  async create(@Body() createTaskDto: CreateTaskDto) {
     try {
       const newTask = await this.taskService.create(createTaskDto);
-      request.responseMessage = 'Task has been created successfully';
       return newTask;
     } catch (err) {
       throw new HttpException(err.message, err.status);
