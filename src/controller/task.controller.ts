@@ -12,11 +12,13 @@ import {
   Query,
   Req,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
 import { ITask } from 'src/interface/task.interface';
+import { TaskValidationPipe } from 'src/pipes/task-validation.pipe';
 import { CreateTaskDto } from '../dto/create-task.dto';
 import { TaskService } from '../service/task.service';
 
@@ -55,6 +57,7 @@ export class TaskController {
   }
 
   @UseGuards(AuthGuard)
+  @UsePipes(new TaskValidationPipe())
   @Post()
   async create(@Req() request, @Body() createTaskDto: CreateTaskDto) {
     try {

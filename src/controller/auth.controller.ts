@@ -10,7 +10,7 @@ import {
   Req,
   SetMetadata,
   UseGuards,
-  UsePipes
+  UsePipes,
 } from '@nestjs/common';
 
 import { LoginDto, ResetPasswordDto, UserDto } from 'src/dto/user.dto';
@@ -24,7 +24,7 @@ export const ResponseMessage = (message: string) =>
 @Controller('user')
 // @UseInterceptors(ResponseInterceptor)
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(public authService: AuthService) { }
 
   @UseGuards(AuthGuard)
   @ResponseMessage('User found successfully')
