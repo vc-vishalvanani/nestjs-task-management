@@ -30,11 +30,15 @@ export class TaskService {
   }
 
   async findOne(id: string): Promise<ITask> {
-    const task = await this.taskModel.findById(id);
-    if (!task) {
-      throw new NotFoundException('Task not found');
+    try {
+      const task = await this.taskModel.findById(id);
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+      return task;
+    } catch (err) {
+      throw new NotFoundException(err.message, err.status);
     }
-    return task;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto): Promise<ITask> {

@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 
 import { UpdateTaskDto } from 'src/dto/update-task.dto';
-import { HttpExceptionFilter } from 'src/exception/HttpExceptionFilter';
+import { HttpExceptionFilter } from 'src/exception/http-exception-filter';
 import { AuthGuard } from 'src/guard/auth/auth.guard';
 import { ResponseInterceptor } from 'src/interceptor/response.interceptor';
 import { ITask } from 'src/interface/task.interface';
@@ -33,6 +33,7 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) { }
 
   @UseGuards(AuthGuard)
+  @ResponseMessage('Task found successfully')
   @Get(':id')
   async findOne(@Req() request, @Param('id') id: string) {
     try {

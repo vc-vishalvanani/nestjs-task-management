@@ -5,7 +5,7 @@ import { compare, hash } from 'bcrypt';
 import { Model } from 'mongoose';
 
 import { LoginDto, UpdateUserDto, UserDto } from 'src/dto/user.dto';
-import { AuthorizationException } from 'src/exception/AuthorizationException';
+import { AuthorizationException } from 'src/exception/authorization-exception';
 import { IUser } from 'src/interface/user.interface';
 
 @Injectable()
