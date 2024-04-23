@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UseFilters } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare, hash } from 'bcrypt';
@@ -8,6 +8,7 @@ import { LoginDto, UpdateUserDto, UserDto } from 'src/dto/user.dto';
 import { AuthorizationException } from 'src/exception/authorization-exception';
 import { IUser } from 'src/interface/user.interface';
 
+@UseFilters(AuthorizationException)
 @Injectable()
 export class AuthService {
   saltRounds = 8;
