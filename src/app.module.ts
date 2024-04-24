@@ -12,6 +12,7 @@ import { TaskSchema } from './schema/task.schema';
 import { UserSchema } from './schema/user.schema';
 import { AuthService } from './service/auth.service';
 import { TaskService } from './service/task.service';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TaskService } from './service/task.service';
       global: true,
       secret: process.env.JWT_SECRET_KEY,
     }),
+    TaskModule,
   ],
   controllers: [AppController, TaskController, AuthController, DateController],
   providers: [

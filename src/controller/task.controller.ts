@@ -37,6 +37,7 @@ export class TaskController {
   @Get(':id')
   async findOne(@Req() request, @Param('id') id: string) {
     try {
+      console.log(request['ua']);
       const taskData = await this.taskService.findOne(id);
       // Set response message for this specific request
       request.responseMessage = 'Task found successfully';
